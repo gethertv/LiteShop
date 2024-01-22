@@ -1,0 +1,64 @@
+﻿@model LiteShop.Entities.Order
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Order</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="DataS" class="control-label"></label>
+                <input asp-for="DataS" class="form-control" />
+                <span asp-validation-for="DataS" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CustomerId" class="control-label"></label>
+                <select asp-for="CustomerId" class ="form-control" asp-items="ViewBag.CustomerId"></select>
+            </div>
+            <div class="form-group">
+                <label for="products" class="control-label">Produkty</label>
+                <div id="product-list">
+                    <div class="product-item">
+                        <select id="ProductId" name="ProductId" class="form-control">
+                            @foreach (var product in ViewBag.ProductId)
+                            {
+                                <option value="@product.Value">@product.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <button type="button" id="add-product" class="btn btn-secondary">Dodaj produkt</button>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            $('#add-product').click(function () {
+                // Klonuj pierwszy element select (produkt) i dodaj go do listy
+                $('#product-list .product-item:first')
+                    .clone()
+                    .appendTo('#product-list');
+            });
+        });
+    </script>
+}

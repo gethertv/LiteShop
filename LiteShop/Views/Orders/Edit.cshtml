@@ -1,0 +1,95 @@
+﻿@model LiteShop.Entities.Order
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Order</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="DataS" class="control-label"></label>
+                <input asp-for="DataS" class="form-control" />
+                <span asp-validation-for="DataS" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CustomerId" class="control-label"></label>
+                <select asp-for="CustomerId" class="form-control" asp-items="ViewBag.CustomerId"></select>
+                <span asp-validation-for="CustomerId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+
+        @if (Model.OrderDetails != null && Model.OrderDetails.Any())
+        {
+            <h3>Produkty w zamówieniu</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nazwa produktu</th>
+                        <th>Ilość</th>
+                        <th>Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var detail in Model.OrderDetails)
+                    {
+                        <tr>
+                            <td>@detail.Product.Name</td>
+                            <td>@detail.Amount</td>
+                            <td>
+                                <!-- Oddzielny formularz do usuwania produktu -->
+                                <form asp-action="DeleteOrderDetail" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="orderDetailId" value="@detail.OrderDetailId" />
+                                    <input type="hidden" name="orderId" value="@Model.Id" />
+                                    <input type="hidden" name="productId" value="@detail.ProductId" />
+                                    <input type="submit" value="Usuń" class="btn btn-danger" />
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+
+        <form asp-action="AddProductToOrder" method="post">
+            <input type="hidden" asp-for="Id" />
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="orderId" value="@Model.Id" />
+            <div class="form-group">
+                <label for="newProductId">Produkt</label>
+                <select id="newProductId" name="newProductId" class="form-control">
+                    @foreach (var product in ViewBag.AllProducts as SelectList)
+                    {
+                        <option value="@product.Value">@product.Text</option>
+                    }
+                </select>
+            </div>
+            <!--<div class="form-group">
+                <label for="newAmount">Ilość</label>
+                <input type="number" id="newAmount" name="newAmount" class="form-control" />
+            </div>-->
+            <input type="submit" value="Dodaj produkt" class="btn btn-primary" />
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
