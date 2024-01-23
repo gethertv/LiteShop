@@ -18,6 +18,13 @@ namespace LiteShop.Controllers
             _context = context;
         }
 
+        [HttpGet]
+        [Route("api/categories")]
+        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        {
+            return await _context.Categories.ToListAsync();
+        }
+
         // GET: Categories
         public async Task<IActionResult> Index()
         {

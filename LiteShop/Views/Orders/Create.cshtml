@@ -1,4 +1,5 @@
-﻿@model LiteShop.Entities.Order
+﻿@using LiteShop.Entities
+@model LiteShop.Entities.Order
 
 @{
     ViewData["Title"] = "Create";
@@ -6,9 +7,11 @@
 <style>
 
     .product-item {
-        display: grid;    
-        grid-template-columns: 1fr auto;
+        display: grid;
+        grid-template-columns: 1fr auto auto;
         margin: 5px;
+        align-items: center;
+        gap: 20px;
     }
 
     .remove-product {
@@ -19,6 +22,20 @@
         border: none;
         color: #f8f8f8;
         margin-left: 20px;
+    }
+
+    .col-md-4 {
+        width: 100%;
+    }
+
+    .price-box {
+        display: flex;
+        flex-direction: row-reverse;
+        align-items: center;
+    }
+
+    #total-price {
+        margin-right: 20px;
     }
 
 </style>
@@ -42,21 +59,28 @@
             <div class="form-group">
                 <label for="products" class="control-label">Produkty</label>
                 <div id="product-list">
-                    <div class="product-item">
-                        <select id="ProductId" name="ProductId" class="form-control">
-                            @foreach (var product in ViewBag.ProductId)
+                    <div class="product-item" onclick="remove(this)">
+@*                         <select id="ProductId" name="ProductId" class="form-control">
+                            @foreach (var product in ViewBag.Products as IEnumerable<Product>)
                             {
-                                <option value="@product.Value">@product.Text</option>
+                                <option value="@product.Id" data-price="@product.Price">@product.Name (@product.Category.Name)</option>
                             }
+                         
                         </select>
+                        <span class="cost-product">0.00</span> *@
                     </div>
                 </div>
-                <button type="button" id="add-product" class="btn btn-secondary">Dodaj produkt</button>
+
+                <button type="button" onclick="addProductItem()" id="add-product" class="btn btn-secondary">Dodaj produkt</button>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>
+        <div class="price-box">
+            <h3>Suma</h3>
+            <h2 id="total-price"></h2>
+        </div>
     </div>
 </div>
 
@@ -64,25 +88,115 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
+
+
+
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
     }
 
-    <script>
-        $(document).ready(function () {
-            $('#add-product').click(function () {
-                let input = $('#product-list .product-item:first').clone()
-
-                // dodanie przycisku
-                input.append('<button class="remove-product">Usuń</button>');
-
-                input.appendTo('#product-list');
-            });
-
-            $('#product-list').on('click', '.remove-product', function () {
-                $(this).closest('.product-item').remove();
-            });
-        });
-    </script>
 }
+
+<script>
+    let enable = false;
+
+    const products = [];
+    // init category
+    fetchProduct();
+    
+    async function fetchProduct() {
+        console.log("Pobiernie kategorii");
+        try {
+            const response = await fetch('/api/products');
+            if (!response.ok) {
+                throw new Error('Error! ');
+            }
+            const data = await response.json();
+            enable = true;
+            console.log("Udalo sie pobrac kategorie!");
+            data.forEach(product => {
+                products.push({
+                    "product_id": product.id,
+                    "product_name": product.name,
+                    "price": product.price,
+                    "category_id": product.categoryId,
+                    "category_name": product.categoryName
+                })
+            });
+            return data;
+        } catch (error) {
+            console.error('Error: ', error);
+        }
+    }
+
+    
+
+    function addProductItem() {
+        console.log(`Status: ${enable}`)
+        if (!enable)
+            return;
+
+        console.log(products);
+        products.forEach(function (products) {
+            console.log(products.category_name);
+        });
+
+        var productList = document.getElementById('product-list');
+        var productItem = document.createElement('div');
+        productItem.className = 'product-item';
+
+ 
+
+        productItem.innerHTML = `
+            <select name="ProductId" class="form-control" onchange="updatePrice(this)">
+                                ${products.map(product => `<option value="${product.product_id}" data-price="${product.price}">${product.product_name} (${product.category_name})  ---  Cena: ${product.price}</option>`).join('')}
+            </select>
+            <span class="cost-product">${price}</span>
+            <button class="remove-product" onclick="removeProductItem(this)">Usuń</button>
+        `;
+
+        this.price += price;
+        productList.appendChild(productItem);
+
+        const newSelectElement = productItem.querySelector('select');
+        updatePrice(newSelectElement);
+    }
+
+    function updatePrice(selectElement) {
+        var price = selectElement.options[selectElement.selectedIndex].getAttribute('data-price');
+        var costProductSpan = selectElement.parentElement.querySelector('.cost-product');
+        costProductSpan.textContent = price;
+
+        sumPrices();
+    }
+
+    function sumPrices() {
+        var total = 0;
+        var priceElements = document.querySelectorAll('.cost-product');
+
+        priceElements.forEach(function (element) {
+            var price = parseFloat(element.textContent);
+            if (!isNaN(price)) {
+                total += price;
+            }
+        });
+
+        this.price = total;
+        document.getElementById("total-price").innerText = this.price.toFixed(2);
+    }
+
+
+    function removeProductItem(element) {
+        element.parentElement.remove();
+        sumPrices();
+    }
+
+
+    let price = 0;
+    
+
+
+</script>

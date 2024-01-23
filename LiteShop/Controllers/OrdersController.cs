@@ -51,21 +51,31 @@ namespace LiteShop.Controllers
 
 
         // GET: Orders/Create
+        /*        public IActionResult Create()
+                {
+                    var productsWithCategories = _context.Products
+                        .Include(p => p.Category) 
+                        .ToList() 
+                        .Select(p => new
+                        {
+                            p.Id,
+                            p.Price,
+                            ProductInfo = $"{p.Name} ({p.Category.Name})"
+                        });
+
+                    ViewBag.ProductId = new SelectList(productsWithCategories, "Id", "ProductInfo");
+                    ViewData["CustomerId"] = new SelectList(_context.Customer, "Id", "Name");
+                    return View();
+                }*/
+
         public IActionResult Create()
         {
-            var productsWithCategories = _context.Products
-                .Include(p => p.Category) 
-                .ToList() 
-                .Select(p => new
-                {
-                    p.Id,
-                    ProductInfo = $"{p.Name} ({p.Category.Name})"
-                });
-
-            ViewBag.ProductId = new SelectList(productsWithCategories, "Id", "ProductInfo");
+            var products = _context.Products.Include(p => p.Category).ToList();
+            ViewBag.Products = products;
             ViewData["CustomerId"] = new SelectList(_context.Customer, "Id", "Name");
             return View();
         }
+
 
         // POST: Orders/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.

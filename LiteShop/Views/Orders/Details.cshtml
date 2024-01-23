@@ -30,7 +30,10 @@
         </dd>
     </dl>
 
-    <!-- Dodanie sekcji wyświetlającej szczegóły zamówienia -->
+    @{
+        double totalSum = 0;
+    }
+
     @if (Model.OrderDetails != null && Model.OrderDetails.Any())
     {
         <h4>Szczegóły zamówienia</h4>
@@ -40,19 +43,26 @@
                     <th>Nazwa produktu</th>
                     <th>Kategoria</th>
                     <th>Ilość</th>
+                    <th>Cena jednostkowa</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var detail in Model.OrderDetails)
                 {
+                    double? totalPriceForProduct = detail.Amount * detail.Product.Price;
+                    totalSum += totalPriceForProduct.HasValue ? totalPriceForProduct.Value : 0.00;
+
                     <tr>
                         <td>@Html.DisplayFor(_ => detail.Product.Name)</td>
                         <td>@Html.DisplayFor(_ => detail.Product.Category.Name)</td>
-                        <td>@Html.DisplayFor(_ => detail.Amount)</td>
+                        <td>@detail.Amount</td>
+                        <td>@detail.Product.Price</td>
                     </tr>
                 }
             </tbody>
         </table>
+
+        <h4>Całkowita kwota zamówienia: @totalSum.ToString("C2")</h4>
     }
 </div>
 

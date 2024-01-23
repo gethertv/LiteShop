@@ -10,7 +10,7 @@ namespace LiteShop.Entities
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Test4;Trusted_Connection=True;");
+            optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Test50;Trusted_Connection=True;");
 
             base.OnConfiguring(optionsBuilder);
         }

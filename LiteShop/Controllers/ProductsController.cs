@@ -18,6 +18,25 @@ namespace LiteShop.Controllers
             _context = context;
         }
 
+        [HttpGet]
+        [Route("api/products")]
+        public async Task<ActionResult<IEnumerable<object>>> GetProducts()
+        {
+
+            var products = await _context.Products
+                .Include(p => p.Category)
+                .Select(p => new {
+                    p.Id,
+                    p.Name,
+                    p.Price,
+                    CategoryName = p.Category.Name,
+                    CategoryId = p.Category.Id
+                })
+                .ToListAsync();
+
+            return products;
+
+        }
         // GET: Products
         public async Task<IActionResult> Index()
         {
@@ -59,7 +78,7 @@ namespace LiteShop.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,CategoryId")] Product product)
+        public async Task<IActionResult> Create([Bind("Id,Name,Price,CategoryId")] Product product)
         {
 
             if (ModelState.IsValid)
@@ -79,11 +98,16 @@ namespace LiteShop.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Product.FindAsync(id);
+            var product = await _context.Product
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.Id == id);
+                
             if (product == null)
             {
                 return NotFound();
             }
+
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
             return View(product);
         }
 
@@ -92,7 +116,7 @@ namespace LiteShop.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Product product)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,CategoryId,Price")] Product product)
         {
             if (id != product.Id)
             {
