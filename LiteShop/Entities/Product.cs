@@ -21,7 +21,15 @@ namespace LiteShop.Entities
         [Display(Name = "Klient")]
         public virtual ICollection<Customer>? Customers { get; set; }
 
-        [Display(Name = "Oceny")]
+        [Display(Name = "Szczegóły zamówienia")]
         public ICollection<OrderDetail>? OrderDetails { get; set; }
+
+        [Required(ErrorMessage = "Wybór kategorii jest obowiązkowy.")]
+        [Display(Name = "Kategoria")]
+        public int? CategoryId { get; set; }
+
+        [Display(Name = "Kategoria")]
+        public Category? Category { get; set; }
+
     }
 }

@@ -3,6 +3,22 @@
 @{
     ViewData["Title"] = "Details";
 }
+<style>
+
+    .toggle-details-btn {
+        background: #5864f1;
+        color: #f8f8f8;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 20px;
+    }
+
+    .order-details-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        margin-top: 30px;
+    }
+</style>
 
 <h1>Details</h1>
 
@@ -33,10 +49,74 @@
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.City)
+        </dd>  
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Orders)
         </dd>
     </dl>
+
+    <h4>Lista zamówień</h4>
+    @if (Model.Orders != null && Model.Orders.Any())
+    {
+        @foreach (var order in Model.Orders)
+        {
+            <div class="order-details-row">
+                <p>Zamówienie ID: @order.Id</p>
+                <button class="toggle-details-btn" data-target="details-@order.Id">Pokaż szczegóły</button>
+            </div>
+            <div id="details-@order.Id" class="order-details" style="display: none;">
+                @if (order.OrderDetails != null && order.OrderDetails.Any())
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nazwa</th>
+                                <th>Ilość</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var detail in order.OrderDetails)
+                            {
+                                <tr>
+                                    <td>@detail.Product.Name</td>
+                                    <td>@detail.Amount</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        }
+
+    }
+    else
+    {
+        <p>Brak zamówień.</p>
+    }
 </div>
 <div>
+   
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var buttons = document.querySelectorAll('.toggle-details-btn');
+
+            buttons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var targetId = button.getAttribute('data-target');
+                    var detailsDiv = document.getElementById(targetId);
+
+                    if (detailsDiv.style.display === 'none') {
+                        detailsDiv.style.display = 'block';
+                    } else {
+                        detailsDiv.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+}

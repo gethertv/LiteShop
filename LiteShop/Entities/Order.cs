@@ -9,9 +9,6 @@ namespace LiteShop.Entities
     public class Order
     {
 
-  
-
-
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
@@ -30,13 +27,6 @@ namespace LiteShop.Entities
         [Display(Name = "Szczegoly zamowienia")]
         public ICollection<OrderDetail>? OrderDetails { get; set; }
 
-        public string IN
-        {
-            get
-            {
-                return " ";
-            }
-        }
         
     }
 }

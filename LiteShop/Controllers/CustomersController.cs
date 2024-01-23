@@ -33,7 +33,11 @@ namespace LiteShop.Controllers
             }
 
             var customer = await _context.Customer
+                .Include(c => c.Orders)
+                .ThenInclude(o => o.OrderDetails)
+                .ThenInclude(od => od.Product)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (customer == null)
             {
                 return NotFound();
@@ -133,8 +137,32 @@ namespace LiteShop.Controllers
             return View(customer);
         }
 
-        // POST: Customers/Delete/5
         [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var customer = await _context.Customer
+                .Include(c => c.Orders) 
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (customer != null)
+            {
+                foreach (var order in customer.Orders.ToList())
+                {
+                    _context.Order.Remove(order);
+                }
+
+             
+                _context.Customer.Remove(customer);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
+        // POST: Customers/Delete/5
+/*        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
@@ -146,7 +174,7 @@ namespace LiteShop.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
+        }*/
 
         private bool CustomerExists(int id)
         {

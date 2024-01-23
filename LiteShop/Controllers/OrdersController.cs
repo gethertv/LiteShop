@@ -37,6 +37,8 @@ namespace LiteShop.Controllers
                 .Include(o => o.Customer) 
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.Product)
+                    .ThenInclude(p => p.Category)
+
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (order == null)
@@ -51,8 +53,17 @@ namespace LiteShop.Controllers
         // GET: Orders/Create
         public IActionResult Create()
         {
+            var productsWithCategories = _context.Products
+                .Include(p => p.Category) 
+                .ToList() 
+                .Select(p => new
+                {
+                    p.Id,
+                    ProductInfo = $"{p.Name} ({p.Category.Name})"
+                });
+
+            ViewBag.ProductId = new SelectList(productsWithCategories, "Id", "ProductInfo");
             ViewData["CustomerId"] = new SelectList(_context.Customer, "Id", "Name");
-            ViewData["ProductId"] = new SelectList(_context.Product, "Id", "Name");
             return View();
         }
 
@@ -67,7 +78,7 @@ namespace LiteShop.Controllers
             {
                 order.DataS = DateTime.Now;
                 _context.Add(order);
-                await _context.SaveChangesAsync(); // Najpierw zapisz Order
+                await _context.SaveChangesAsync(); // zapisanie orderu
 
 
                 var productIds = Request.Form["ProductId"];
@@ -80,12 +91,12 @@ namespace LiteShop.Controllers
 
                     if (existingOrderDetail != null)
                     {
-                        // Zwiększ ilość dla istniejącego rekordu
+                        // zwiekszenie ilosci
                         existingOrderDetail.Amount += 1;
                     }
                     else
                     {
-                        // Dodaj nowy rekord OrderDetail
+                        // dodanie nowego rekordu OrderDetail
                         var orderDetail = new OrderDetail
                         {
                             OrderId = order.Id,
@@ -100,7 +111,6 @@ namespace LiteShop.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Jeśli ModelState nie jest poprawny, przygotuj ponownie formularz
             ViewData["CustomerId"] = new SelectList(_context.Customer, "Id", "Name", order.CustomerId);
             ViewData["ProductId"] = new SelectList(_context.Product, "Id", "Name");
             return View(order);
@@ -125,7 +135,7 @@ namespace LiteShop.Controllers
         }
 
 
-        // Metoda do dodawania nowego produktu do zamówienia
+        
         [HttpPost]
         public async Task<IActionResult> AddProductToOrder(int orderId, int newProductId)
         {
@@ -133,7 +143,7 @@ namespace LiteShop.Controllers
             var order = await _context.Order.FindAsync(orderId);
             if (order == null)
             {
-                // Obsługa sytuacji, gdy nie znaleziono zamówienia
+                // gdy nie znaleziono zamowienia o podanym id
                 return NotFound();
             }
 
@@ -160,9 +170,9 @@ namespace LiteShop.Controllers
             }
 
             var order = await _context.Order
-                .Include(o => o.OrderDetails)      // Dołączenie szczegółów zamówienia
-                    .ThenInclude(od => od.Product) // Dołączenie informacji o produkcie
-                .Include(o => o.Customer)          // Dołączenie informacji o kliencie
+                .Include(o => o.OrderDetails)      // dolaczenie OrderDetails
+                    .ThenInclude(od => od.Product) // dolaczenie informacji o produckie
+                .Include(o => o.Customer)          // dolaczenie informacji o kliencie
                 .FirstOrDefaultAsync(o => o.Id == id);
 
             if (order == null)

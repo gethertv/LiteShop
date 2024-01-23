@@ -48,7 +48,6 @@
                             <td>@detail.Product.Name</td>
                             <td>@detail.Amount</td>
                             <td>
-                                <!-- Oddzielny formularz do usuwania produktu -->
                                 <form asp-action="DeleteOrderDetail" method="post">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="orderDetailId" value="@detail.OrderDetailId" />

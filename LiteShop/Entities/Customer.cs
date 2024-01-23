@@ -25,7 +25,7 @@ namespace LiteShop.Entities
         public string? City { get; set; }
 
         [Display(Name = "Lista zamówień")]
-        public virtual ICollection<Order>? Students { get; }
+        public virtual ICollection<Order>? Orders { get; }
 
         [Display(Name = "Produkty")]
         public virtual ICollection<Product>? Products { get; }

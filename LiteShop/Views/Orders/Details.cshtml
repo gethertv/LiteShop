@@ -21,6 +21,12 @@
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Customer.Name)
+        </dd>        
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Customer.Surname)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Customer.Surname)
         </dd>
     </dl>
 
@@ -32,6 +38,7 @@
             <thead>
                 <tr>
                     <th>Nazwa produktu</th>
+                    <th>Kategoria</th>
                     <th>Ilość</th>
                 </tr>
             </thead>
@@ -40,6 +47,7 @@
                 {
                     <tr>
                         <td>@Html.DisplayFor(_ => detail.Product.Name)</td>
+                        <td>@Html.DisplayFor(_ => detail.Product.Category.Name)</td>
                         <td>@Html.DisplayFor(_ => detail.Amount)</td>
                     </tr>
                 }
