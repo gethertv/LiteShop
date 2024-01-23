@@ -1,4 +1,4 @@
-Prosty sklep internetowy w C# .NET (MVC)
+Prosty sklep internetowy w C# .NET (MVC) - SDK 8.0.11
 
 Schemat bazy danych:
 ![image](https://github.com/gethertv/LiteShop/assets/49717977/931becde-46db-4ae5-b673-ba3b6e0e51ef)
